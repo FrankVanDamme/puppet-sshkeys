@@ -10,4 +10,6 @@ class sshkeys::keymaster {
   }
   # Realize all virtual master keys
   Sshkeys::Setup_key_master <| |>
+  # Realize all create_key's exported as part of the automatic_keys logic
+  Sshkeys::Create_key_wrapper <<|  |>> 
 }
