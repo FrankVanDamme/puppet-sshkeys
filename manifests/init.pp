@@ -17,6 +17,13 @@ class sshkeys (
 	$fromuser = $splitt[0]
 	$fromhost = $splitt[1]
 	$touser = $args['user']
+	if ( $args['ensure'] == undef ){
+	    $ensure = present
+	    notify {"ensure in $name was undef":}
+	} else {
+	    $ensure = $args['ensure']
+	    notify {"ensure in $name is $ensure":}
+	}
 
 	# pass the home directory of the client user down to
 	# set_client_key_pair
@@ -52,8 +59,9 @@ class sshkeys (
 	# , install the public key in the target user's authorized_keys
 	# file 
 	sshkeys::set_authorized_keys { $name:
-	    user => $touser,
-	    home => $args['home'],
+	    user   => $touser,
+	    home   => $args['home'],
+	    ensure => $ensure,
 	}
     }
     Sshkeys::Set_client_key_pair_wrapper <<| tag == $::hostname |>>
