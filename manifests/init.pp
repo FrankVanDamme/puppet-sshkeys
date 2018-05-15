@@ -13,17 +13,24 @@ class sshkeys (
     $autokeys = hiera_hash('sshkeys::automatic_keys', {})
 
     $autokeys.each | $name, $args | {
-	$splitt = split($name, '@')
-	$fromuser = $splitt[0]
-	$fromhost = $splitt[1]
-	$touser = $args['user']
+	if ( $args['key'] == undef or $args['key'] == "" ){
+	    $key_name = $name
+	} else {
+	    $key_name = $args['key']
+	}
+
 	if ( $args['ensure'] == undef ){
 	    $ensure = present
-	    notify {"ensure in $name was undef":}
 	} else {
 	    $ensure = $args['ensure']
-	    notify {"ensure in $name is $ensure":}
 	}
+
+	$splitt = split($key_name, '@')
+	$fromuser = $splitt[0]
+	$fromhost = $splitt[1]
+	#$user_ = [ $args['user'] ] 
+	$touser = $args['user']
+	notify { "from $name, key_name: $key_name ; key: ~${key}~": }
 
 	# pass the home directory of the client user down to
 	# set_client_key_pair
@@ -43,14 +50,14 @@ class sshkeys (
 	# So, this sets the process in motion of exporting a wrapper,
 	# we need to collect all of these on the puppet master where
 	# it will create (only) one 
-	@@sshkeys::create_key_wrapper{"${name}_to_$touser@$hostname":
-	    key_name => $name,
+	@@sshkeys::create_key_wrapper{"${key_name}_to_$touser@$hostname":
+	    key_name => $key_name,
 	}
 	# set_client_key_pair is to install BOTH parts of the key pair, on
 	# the host you want to connect FROM. We realize it on the host
 	# "fromhost".
-	@@sshkeys::set_client_key_pair_wrapper{"${name}_to_$touser@$hostname":
-	    keypair_name => $name,
+	@@sshkeys::set_client_key_pair_wrapper{"${key_name}_to_$touser@$hostname":
+	    keypair_name => $key_name,
 	    user         => $fromuser,
 	    tag          => $fromhost,
 	    home         => $fromhome,
@@ -59,9 +66,10 @@ class sshkeys (
 	# , install the public key in the target user's authorized_keys
 	# file 
 	sshkeys::set_authorized_keys { $name:
-	    user   => $touser,
-	    home   => $args['home'],
-	    ensure => $ensure,
+	    keyname  => $key_name,
+	    user     => $touser,
+	    home     => $args['home'],
+	    ensure   => $ensure,
 	}
     }
     Sshkeys::Set_client_key_pair_wrapper <<| tag == $::hostname |>>
