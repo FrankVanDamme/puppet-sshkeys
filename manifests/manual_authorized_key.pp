@@ -10,7 +10,7 @@ define sshkeys::manual_authorized_key (
 	ensure  => $ensure,
 	type    => $type,
 	user    => $user,
-	key     => hiera($key),
+	key     => lookup($key, String),
 	options => $options,
     }
 }
