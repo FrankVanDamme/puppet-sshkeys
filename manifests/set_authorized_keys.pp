@@ -20,7 +20,7 @@ define sshkeys::set_authorized_keys (
     owner   => $user,
     group   => $group ? { "" => $user, default => $group },
     require => User[$user],
-    mode    => 600,
+    mode    => '600',
   }
   Ssh_authorized_key {
     user   => $user,
