@@ -56,6 +56,33 @@ we use the `set_authorized_keys` ressource::
 Now, `user1` should have the `key1` key pair installed on his account,
 and be able to login to the `user2` account.
 
+Shorthand in hiera
+------------------
+
+::
+
+  sshkeys::automatic_keys:
+    snoopy@kennel:
+      user: charlesbrown
+
+This will generate a key pair, install the private key on the hostn named
+"kennel" in Snoopy's home directory, and add the public key to the
+authorized_keys file on the host you're applying the sshkeys module on with
+this hiera data.
+
+Optionally you can customise the home directories of both client key pair, and
+the authorized_keys user::
+
+  sshkeys::automatic_keys:
+    snoopy@kennel:
+      user: charlesbrown
+      home: /home/human/charles
+      client_home: /users/snoopy
+
+Make sure to keep the client_home setting consistent across your environment
+though, if you want to install the public key in more than one place. If not, a
+duplicate resource warning will be triggered as a safeguard!
+
 Pre-defined keys
 ================
 

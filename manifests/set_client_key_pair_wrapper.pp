@@ -4,11 +4,9 @@ define sshkeys::set_client_key_pair_wrapper (
   $home = undef,
 ) {
     notify {"key_pair $name, user $user":}
-    if ! defined( Sshkeys::Set_client_key_pair[$keypair_name] ){
-	sshkeys::set_client_key_pair { $keypair_name:
-	    user => $user,
-	    home => $home,
-	}
+    sshkeys::set_client_key_pair { $keypair_name:
+        user => $user,
+        home => $home,
     }
 }
 

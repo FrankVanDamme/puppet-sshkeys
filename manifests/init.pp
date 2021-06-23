@@ -32,19 +32,23 @@ class sshkeys (
 	$touser = $args['user']
 	notify { "from $name, key_name: $key_name ; key: ~${key}~": }
 
-	# pass the home directory of the client user down to
-	# set_client_key_pair
-	# an implementation where you specify this is possible, but you 
-	# could end up with multiple Set_client_key_pair resources, only
-	# the first of which occurs in the catalog would be declared, and
-	# cause a confusion in case you have "from" users with the same
-	# name but different home directories
-	# So if you really want to go exotic and think up non-standard
-	# home directory locations, it may be best to define the necessary
-	# resources your own way
-	if ( $fromuser == 'root' ){
-	    $fromhome = '/root'
-	}
+    # pass the home directory of the client user down to
+    # set_client_key_pair
+
+    # you can set the location of the home directory of the client user, if and
+    # only if you keep the "fromhome" parameter for that user on that host the
+    # same across your environment. A user only has one home directory on any
+    # given host, right?
+
+    # set fromhome, the client user's home directory, if given as argument
+    if ( $args['client_home'] != undef ){
+        $fromhome = $args['client_home']
+    } else {
+        # for root user, default to /root as home directory
+        if ( $fromuser == 'root' ){
+            $fromhome = '/root'
+        }
+    }
 
 	# we are running on the node where access should be granted. 
 	# So, this sets the process in motion of exporting a wrapper,
@@ -56,7 +60,7 @@ class sshkeys (
 	# set_client_key_pair is to install BOTH parts of the key pair, on
 	# the host you want to connect FROM. We realize it on the host
 	# "fromhost".
-	@@sshkeys::set_client_key_pair_wrapper{"${key_name}_to_$touser@$hostname":
+	@@sshkeys::set_client_key_pair_wrapper_wrapper{"${key_name}_to_$touser@$hostname":
 	    keypair_name => $key_name,
 	    user         => $fromuser,
 	    tag          => $fromhost,
@@ -72,5 +76,5 @@ class sshkeys (
 	    ensure   => $ensure,
 	}
     }
-    Sshkeys::Set_client_key_pair_wrapper <<| tag == $::hostname |>>
+    Sshkeys::Set_client_key_pair_wrapper_wrapper <<| tag == $::hostname |>>
 }
