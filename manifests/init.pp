@@ -46,6 +46,8 @@ class sshkeys (
             # for root user, default to /root as home directory
             if ( $fromuser == 'root' ){
                 $fromhome = '/root'
+            } else {
+                $fromhome=undef
             }
         }
 
