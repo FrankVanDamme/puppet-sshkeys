@@ -2,7 +2,7 @@ class sshkeys (
     $manual_keys = {},
     $automatic_keys = {},
 ) {
-    create_resources('sshkeys::manual_authorized_key',hiera_hash('sshkeys::manual_keys', $manual_keys))
+    create_resources('sshkeys::manual_authorized_key', $manual_keys)
 
     # who needs manual methods if you can automate?
     # hiera example:
@@ -10,9 +10,7 @@ class sshkeys (
     #     user: localuser
     #     home: usershomedir #optional, if you live in /root or /exotic/location
 
-    $autokeys = hiera_hash('sshkeys::automatic_keys', {})
-
-    $autokeys.each | $name, $args | {
+    $automatic_keys.each | $name, $args | {
         if ( $args['key'] == undef or $args['key'] == '' ){
             $key_name = $name
         } else {
